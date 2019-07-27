@@ -83,6 +83,13 @@
   )
 
 (deftest classify-color-genre-test
+  (testing "リセット"
+    (is (= [{:genre :normal :code [0]}]
+           (classify-color-genre [0])))
+    (is (= [{:genre :normal :code [31]}
+            {:genre :normal :code [47]}
+            {:genre :normal :code [30]}]
+           (classify-color-genre [31 47 30]))))
   (testing "前景色と背景色"
     (is (= [{:genre :normal :code [31]}]
            (classify-color-genre [31])))

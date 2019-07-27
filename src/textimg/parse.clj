@@ -46,8 +46,8 @@
 (defn get-color-type
  [^long code]
  (cond
-   (= 1 (int (/ code 100))) :bg
-   (= 1 (int (/ code 90))) :fg
+   (base-color? code 100) :bg
+   (base-color? code 90) :fg
    (bg-color? code) :bg
    (fg-color? code) :fg
    (= code 0) :reset
@@ -84,6 +84,9 @@
       ret
       (let [pref (first cs)]
         (cond
+          (= pref 0) (recur (drop 1 cs)
+                            (conj ret {:genre :normal
+                                       :code (take 1 cs)}))
           (or (and (<= 30 pref) (<= pref 37))
               (and (<= 40 pref) (<= pref 47))) (recur (drop 1 cs)
                                                       (conj ret {:genre :normal
@@ -110,7 +113,8 @@
       (str/replace #"\u001b\[" "")
       (str/replace #"m" "")
       (str/split #";")
-      (->> (map #(if (= % "") "0" %)))
+      (->> (map #(if (= % "") "0" %))
+           (map #(. Integer parseInt %)))
       classify-color-genre
       (->> (map #(cond
                    (= :normal (:genre %)) (to-color-esc (:code %))
