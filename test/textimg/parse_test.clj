@@ -1,6 +1,7 @@
 (ns textimg.parse-test
   (:require [clojure.test :refer :all]
-            [textimg.parse :refer :all]))
+            [textimg.parse :refer :all]
+            [textimg.color :refer :all]))
 
 (deftest parse-prefix-test
   (testing "(前景)ANSIエスケープシーケンスは1つだけ"
@@ -45,3 +46,17 @@
            (parse-prefix "ABC\u001b[31mRed")))
     (is (= {:kind "text" :prefix "x1b[31mRed" :suffix ""}
            (parse-prefix "x1b[31mRed")))))
+
+(deftest parse-color-esc-test
+  (testing "前景色のパース"
+    (is (= [{:color-type "fg" :color rgba-red}]
+           (parse-color-esc "\u001b[31m")))
+    (is (= [{:color-type "fg" :color rgba-green}]
+           (parse-color-esc "\u001b[32m")))
+    (is (= [{:color-type "fg" :color rgba-lightgray}]
+           (parse-color-esc "\u001b[37m")))
+    (is (= [{:color-type "fg" :color rgba-darkgray}]
+           (parse-color-esc "\u001b[90m")))
+    (is (= [{:color-type "fg" :color rgba-white}]
+           (parse-color-esc "\u001b[97m")))
+    ))

@@ -9,6 +9,7 @@
 ; 画像への描画 https://www.javalife.jp/2018/02/28/post-462/
 
 (def font-file "/usr/share/fonts/truetype/ricty-diminished/RictyDiminished-Regular.ttf")
+(def font-size 24)
 
 (defn read-font
   []
