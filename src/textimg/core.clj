@@ -1,4 +1,5 @@
-(ns textimg.core)
+(ns textimg.core
+  (:gen-class))
 
 (defn foo
   "I don't do a whole lot."
