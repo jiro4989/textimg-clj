@@ -56,19 +56,19 @@
 (defn to-color-esc
   [code]
   (let [type (get-color-type code)]
-    {:type type :color (color-code-map code)}))
+    {:color-type type :color (color-code-map code)}))
 
 (defn to-color-256
   [data]
   (let [code (first data)]
     (let [type (get-color-type code)]
-      {:type type :color (color-rgba-map (nth data 2))})))
+      {:color-type type :color (color-rgba-map (nth data 2))})))
 
 (defn to-color-rgb
   [data]
   (let [code (first data)]
     (let [type (get-color-type code)]
-      {:type type :color (Color. (nth data 2)
+      {:color-type type :color (Color. (nth data 2)
                                  (nth data 3)
                                  (nth data 4))})))
 
@@ -88,7 +88,9 @@
                             (conj ret {:genre :normal
                                        :code (take 1 cs)}))
           (or (and (<= 30 pref) (<= pref 37))
-              (and (<= 40 pref) (<= pref 47))) (recur (drop 1 cs)
+              (and (<= 40 pref) (<= pref 47))
+              (and (<= 90 pref) (<= pref 97))
+              (and (<= 100 pref) (<= pref 107))) (recur (drop 1 cs)
                                                       (conj ret {:genre :normal
                                                                  :code (take 1 cs)}))
           (or (= 38 pref)
@@ -117,7 +119,8 @@
            (map #(. Integer parseInt %)))
       classify-color-genre
       (->> (map #(cond
-                   (= :normal (:genre %)) (to-color-esc (:code %))
-                   (= :ext-256 (:genre %)) (to-color-256 (:code %))
-                   (= :ext-rgb (:genre %)) (to-color-rgb (:code %))
-                   :else nil)))))
+                   (= :normal (:genre %)) (-> % :code first to-color-esc)
+                   (= :ext-256 (:genre %)) (-> % :code to-color-256)
+                   (= :ext-rgb (:genre %)) (-> % :code to-color-rgb)
+                   :else nil)))
+      ))
