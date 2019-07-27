@@ -1,4 +1,5 @@
 (ns textimg.parse
+  (:import [java.awt Color])
   (:require [textimg.color :refer :all]
             [clojure.string :as str]))
 
@@ -30,16 +31,46 @@
                 {:kind "text" :prefix matched :suffix (subs text (count matched))}
                 {:kind "text" :prefix text :suffix ""}))))))))
 
+(defn base-color?
+  [^long code ^long num]
+  (= 1 (int (/ code num))))
+
+(defn fg-color?
+  [^long code]
+  (base-color? code 30))
+
+(defn bg-color?
+  [^long code]
+  (base-color? code 40))
+
+(defn get-color-type
+ [^long code]
+ (cond
+   (= 1 (int (/ code 100))) :bg
+   (= 1 (int (/ code 90))) :fg
+   (bg-color? code) :bg
+   (fg-color? code) :fg
+   (= code 0) :reset
+   :else nil))
+
 (defn to-color-esc
-  [color-code]
-  (let [color-type (cond
-                     (= 1 (int (/ color-code 100))) :bg
-                     (= 1 (int (/ color-code 90))) :fg
-                     (= 1 (int (/ color-code 40))) :bg
-                     (= 1 (int (/ color-code 30))) :fg
-                     (= color-code 0) :reset
-                     :else nil)]
-    {:color-type color-type :color (color-code-map color-code)}))
+  [code]
+  (let [type (get-color-type code)]
+    {:type type :color (color-code-map code)}))
+
+(defn to-color-256
+  [data]
+  (let [code (first data)]
+    (let [type (get-color-type code)]
+      {:type type :color (color-rgba-map (nth data 2))})))
+
+(defn to-color-rgb
+  [data]
+  (let [code (first data)]
+    (let [type (get-color-type code)]
+      {:type type :color (Color. (nth data 2)
+                                 (nth data 3)
+                                 (nth data 4))})))
 
 (defn classify-color-genre
   "色コードの分類を返す"
@@ -79,5 +110,10 @@
       (str/replace #"\u001b\[" "")
       (str/replace #"m" "")
       (str/split #";")
-      (->> (map #(if (= % "") "0" %))
-           (map #(to-color-esc (Integer/parseInt %))))))
+      (->> (map #(if (= % "") "0" %)))
+      classify-color-genre
+      (->> (map #(cond
+                   (= :normal (:genre %)) (to-color-esc (:code %))
+                   (= :ext-256 (:genre %)) (to-color-256 (:code %))
+                   (= :ext-rgb (:genre %)) (to-color-rgb (:code %))
+                   :else nil)))))
