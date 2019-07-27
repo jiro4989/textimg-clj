@@ -75,4 +75,9 @@
            (parse-color-esc "\u001b[0m")))
     (is (= [{:color-type :reset :color nil}]
            (parse-color-esc "\u001b[m"))))
+  (testing "前景色、背景色、リセット混在"
+    (is (= [{:color-type :fg :color rgba-red}
+            {:color-type :bg :color rgba-green}
+            {:color-type :reset :color nil}]
+           (parse-color-esc "\u001b[31;42;0m"))))
   )
