@@ -1,7 +1,7 @@
 {:deps {org.clojure/clojure {:mvn/version "1.9.0"}
         org.clojure/data.json {:mvn/version "0.2.6"}}
  :aliases {:native-image
-           {:main-opts ["-m clj.native-image textimg-clj.core"
+           {:main-opts ["-m clj.native-image textimg.core"
                         "--report-unsupported-elements-at-runtime"
                         "--initialize-at-build-time"
                         "-H:Name=json2edn"]

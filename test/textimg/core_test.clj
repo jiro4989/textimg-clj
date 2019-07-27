@@ -1,6 +1,6 @@
-(ns textimg-clj.core-test
+(ns textimg.core-test
   (:require [clojure.test :refer :all]
-            [textimg-clj.core :refer :all]))
+            [textimg.core :refer :all]))
 
 (deftest a-test
   (testing "FIXME, I fail."

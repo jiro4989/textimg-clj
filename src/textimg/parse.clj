@@ -1,4 +1,4 @@
-(ns textimg-clj.parse)
+(ns textimg.parse)
 
 (def esc-kind [:empty :text :esc-seq-color :esc-seq-not-color])
 (def color-esc-re #"^\u001b\[[\d;]*m")

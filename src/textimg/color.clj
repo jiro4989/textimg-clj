@@ -1,4 +1,4 @@
-(ns textimg-clj.color
+(ns textimg.color
   (:import [java.awt Color]))
 
 ; (def color-map )

@@ -1,6 +1,6 @@
-(ns textimg-clj.parse-test
+(ns textimg.parse-test
   (:require [clojure.test :refer :all]
-            [textimg-clj.parse :refer :all]))
+            [textimg.parse :refer :all]))
 
 (deftest parse-prefix-test
   (testing "(前景)ANSIエスケープシーケンスは1つだけ"
