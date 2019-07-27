@@ -5,4 +5,5 @@
             :url "https://www.eclipse.org/legal/epl-2.0/"}
   :dependencies [[org.clojure/clojure "1.10.0"]]
   :repl-options {:init-ns textimg-clj.core}
-  :plugins [[lein-kibit "0.1.7"]])
+  :plugins [[lein-kibit "0.1.7"]
+            [lein-cljfmt "0.6.4"]])
