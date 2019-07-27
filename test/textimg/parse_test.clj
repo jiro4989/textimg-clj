@@ -49,14 +49,30 @@
 
 (deftest parse-color-esc-test
   (testing "前景色のパース"
-    (is (= [{:color-type "fg" :color rgba-red}]
+    (is (= [{:color-type :fg :color rgba-red}]
            (parse-color-esc "\u001b[31m")))
-    (is (= [{:color-type "fg" :color rgba-green}]
+    (is (= [{:color-type :fg :color rgba-green}]
            (parse-color-esc "\u001b[32m")))
-    (is (= [{:color-type "fg" :color rgba-lightgray}]
+    (is (= [{:color-type :fg :color rgba-lightgray}]
            (parse-color-esc "\u001b[37m")))
-    (is (= [{:color-type "fg" :color rgba-darkgray}]
+    (is (= [{:color-type :fg :color rgba-darkgray}]
            (parse-color-esc "\u001b[90m")))
-    (is (= [{:color-type "fg" :color rgba-white}]
-           (parse-color-esc "\u001b[97m")))
-    ))
+    (is (= [{:color-type :fg :color rgba-white}]
+           (parse-color-esc "\u001b[97m"))))
+  (testing "背景色のパース"
+    (is (= [{:color-type :bg :color rgba-red}]
+           (parse-color-esc "\u001b[41m")))
+    (is (= [{:color-type :bg :color rgba-green}]
+           (parse-color-esc "\u001b[42m")))
+    (is (= [{:color-type :bg :color rgba-lightgray}]
+           (parse-color-esc "\u001b[47m")))
+    (is (= [{:color-type :bg :color rgba-darkgray}]
+           (parse-color-esc "\u001b[100m")))
+    (is (= [{:color-type :bg :color rgba-white}]
+           (parse-color-esc "\u001b[107m"))))
+  (testing "リセット"
+    (is (= [{:color-type :reset :color nil}]
+           (parse-color-esc "\u001b[0m")))
+    (is (= [{:color-type :reset :color nil}]
+           (parse-color-esc "\u001b[m"))))
+  )

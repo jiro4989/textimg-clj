@@ -3,6 +3,7 @@
 
 ; (def color-map )
 
+(def rgba-none (Color. 0 0 0 0))
 (def rgba-black (Color. 0 0 0 255))
 (def rgba-red (Color. 255 0 0 255))
 (def rgba-green (Color. 0 255 0 255))
