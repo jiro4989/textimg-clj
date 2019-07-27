@@ -4,6 +4,7 @@
 
 (def esc-kind [:empty :text :esc-seq-color :esc-seq-not-color])
 (def color-type [:fg :bg :reset])
+(def color-genre [:normal :ext-256 :ext-rgb])
 
 (def color-esc-re #"^\u001b\[[\d;]*m")
 (def not-color-esc-re #"^\u001b\[\d*[A-HfSTJK]")
@@ -39,6 +40,38 @@
                      (= color-code 0) :reset
                      :else nil)]
     {:color-type color-type :color (color-code-map color-code)}))
+
+(defn classify-color-genre
+  "色コードの分類を返す"
+  [codes]
+  ; 31;42;0
+  ; 48;2;0;0;0
+  ; 38;5;255
+  ; 31;42;0;38;5;255;48;2;0;0;0
+  (loop [cs codes ret []]
+    (if (empty? cs)
+      ret
+      (let [pref (first cs)]
+        (cond
+          (or (and (<= 30 pref) (<= pref 37))
+              (and (<= 40 pref) (<= pref 47))) (recur (drop 1 cs)
+                                                      (conj ret {:genre :normal
+                                                                 :code (take 1 cs)}))
+          (or (= 38 pref)
+              (= 48 pref)) (let [suff-type (second cs)]
+                             (cond
+                               (= suff-type 2) (recur (drop 5 cs)
+                                                      (conj ret {:genre :ext-rgb
+                                                                 :code (take 5 cs)}))
+                               (= suff-type 5) (recur (drop 3 cs)
+                                                      (conj ret {:genre :ext-256
+                                                                 :code (take 3 cs)}))
+                               :else (recur (drop 1 cs)
+                                            (conj ret {:genre nil
+                                                       :code (take 1 cs)}))))
+          :else (recur (drop 1 cs)
+                       (conj ret {:genre nil
+                                  :code (take 1 cs)})))))))
 
 (defn parse-color-esc
   [^String esc]

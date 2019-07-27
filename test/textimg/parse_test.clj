@@ -81,3 +81,41 @@
             {:color-type :reset :color nil}]
            (parse-color-esc "\u001b[31;42;0m"))))
   )
+
+(deftest classify-color-genre-test
+  (testing "前景色と背景色"
+    (is (= [{:genre :normal :code [31]}]
+           (classify-color-genre [31])))
+    (is (= [{:genre :normal :code [31]}
+            {:genre :normal :code [47]}
+            {:genre :normal :code [30]}]
+           (classify-color-genre [31 47 30]))))
+  (testing "256色"
+    (is (= [{:genre :ext-256 :code [38 5 0]}]
+           (classify-color-genre [38 5 0])))
+    (is (= [{:genre :ext-256 :code [38 5 0]}
+            {:genre :ext-256 :code [48 5 255]}]
+           (classify-color-genre [38 5 0 48 5 255])))
+    (testing "RGB"
+      (is (= [{:genre :ext-rgb :code [38 2 0 1 2]}]
+             (classify-color-genre [38 2 0 1 2])))
+      (is (= [{:genre :ext-rgb :code [38 2 0 1 2]}
+              {:genre :ext-rgb :code [48 2 255 10 5]}]
+             (classify-color-genre [38 2 0 1 2 48 2 255 10 5])))))
+  (testing "混在"
+    (is (= [{:genre :normal :code [31]}
+            {:genre :ext-rgb :code [38 2 0 1 2]}
+            {:genre :normal :code [45]}
+            {:genre :ext-256 :code [38 5 222]}
+            {:genre :ext-rgb :code [48 2 255 10 5]}
+            {:genre :ext-256 :code [48 5 100]}]
+           (classify-color-genre [31 38 2 0 1 2 45 38 5 222 48 2 255 10 5 48 5 100])))
+    )
+  (testing "空"
+    (is (= []
+           (classify-color-genre []))))
+  (testing "存在しないコード"
+    (is (= [{:genre nil :code [21]}
+            {:genre nil :code [99]}]
+           (classify-color-genre [21 99]))))
+  )
