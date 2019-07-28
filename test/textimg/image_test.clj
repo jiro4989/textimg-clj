@@ -8,4 +8,5 @@
       (println "read-font")
       (println (read-font))
       (draw)
+      (draw3)
       true)))

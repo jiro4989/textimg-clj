@@ -1,4 +1,6 @@
 (ns textimg.image
+  (:require [clojure.string :as str]
+            [textimg.parse :refer :all])
   (:import [java.awt Font Graphics Color RenderingHints]
            [java.awt.image BufferedImage]
            [java.io File FileInputStream]
@@ -29,3 +31,64 @@
         (.drawString "Helloあいうえお" 0 24)
         .dispose)
       (ImageIO/write img "png" (File. "out.png")))))
+
+(defn font-width
+  [g c]
+  (.. g getFontMetrics (stringWidth c)))
+
+(defn font-height
+  [g]
+  (.. g getFontMetrics (getHeight)))
+
+(defn draw-line
+  [^Graphics g
+   ^String text
+   x
+   y
+   default-fg
+   default-bg]
+  (loop [g2 g
+         c (str/split text #"")
+         x2 x]
+    (if (empty? c)
+      g
+      (let [fc (first c)]
+        (let [w (font-width g2 fc)
+              h (font-height g2)]
+          (recur (doto g2
+                   (.setColor Color/WHITE)
+                   (.fillRect x2 (- y h) w h)
+                   (.setColor Color/BLACK)
+                   (.drawString fc x2 y))
+                 (drop 1 c)
+                 (+ x2 w)))))))
+
+(defn draw3
+  []
+  (do
+    (let [img (BufferedImage. 200 200 BufferedImage/TYPE_INT_ARGB)]
+      (let [g (.getGraphics img)]
+       (doto g
+         (.setRenderingHint RenderingHints/KEY_TEXT_ANTIALIASING RenderingHints/VALUE_TEXT_ANTIALIAS_ON)
+         (.setFont (read-font))
+         (draw-line "Hello" 0 (font-height g) Color/BLACK Color/WHITE)
+         (draw-line "あいうえお" 0 (* 2 (font-height g)) Color/BLACK Color/WHITE)
+         .dispose))
+      (ImageIO/write img "png" (File. "out3.png")))))
+
+; (defn draw2
+;   [^Graphics g
+;    ^String text
+;    ^Color default-fg
+;    ^Color default-bg]
+;   (loop [line (str/split text #"\n")]
+;     (if (empty? line)
+;       g
+;       (loop [esc (parse-color-esc line)
+;              fg default-fg
+;              bg default-bg]
+;         (if (empty? esc)
+;           nil
+;           (do
+;             TODO)))
+;       )))
